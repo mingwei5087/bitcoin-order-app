@@ -15,39 +15,23 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Cache Node Modules
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ matrix.node-version }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
       - name: Install Dependencies
         if: steps.cache-nodemodules.outputs.cache-hit != 'true'
         run: |
           npm ci --force
 
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'adopt'
-          java-version: '11'
-
       - name: OWASP Dependency Check
         run: |
           wget https://github.com/jeremylong/DependencyCheck/releases/download/v7.2.0/dependency-check-7.2.0-release.zip
           unzip dependency-check-7.2.0-release.zip
-          chmod +x dependency-check/bin/dependency-check.sh
 
       - name: Run scan with ODC
         run: |
-          dependency-check/bin/dependency-check.sh --project "bitcoin" --scan . --out ODC-report.html --exclude node_modules --log odc-debug.log
+          dependency-check/bin/dependency-check.sh --project "bitcoin" --scan . > ODC-report
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: sast-report
+          name: sast report
           path: |
-            ./ODC-report.html
-            ./odc-debug.log
+            ./ODC-report
