@@ -15,6 +15,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Cache Node Modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ matrix.node-version }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Install Dependencies
         if: steps.cache-nodemodules.outputs.cache-hit != 'true'
         run: |
